@@ -1,8 +1,8 @@
 /* ============================================
-   NATHI PROJECTS - COMPLETE JAVASCRIPT
+   NATHI PROJECTS - COMPLETE JAVASCRIPT v3
    Features: Dark Mode, Loader, Promo Banner,
    Calculator, Gallery Lightbox, FAQ Accordion,
-   Progress Tracker, Before/After Slider,
+   Progress Tracker, Before/After, Partners,
    WhatsApp Widget, Scroll to Top, Callback
    ============================================ */
 
@@ -16,7 +16,6 @@
     const loader = document.getElementById('loaderWrapper');
     if (!loader) return;
     
-    // Show loader for at least 2 seconds, then hide
     window.addEventListener('load', () => {
       setTimeout(() => {
         loader.classList.add('hidden');
@@ -34,7 +33,6 @@
     
     if (!toggle || !icon) return;
     
-    // Check saved preference or system preference
     const savedTheme = localStorage.getItem('nathi-theme');
     if (savedTheme) {
       html.setAttribute('data-theme', savedTheme);
@@ -48,7 +46,6 @@
     toggle.addEventListener('click', () => {
       const currentTheme = html.getAttribute('data-theme');
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
       html.setAttribute('data-theme', newTheme);
       icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
       localStorage.setItem('nathi-theme', newTheme);
@@ -61,12 +58,9 @@
   function initPromoBanner() {
     const banner = document.getElementById('promoBanner');
     const closeBtn = document.getElementById('promoClose');
-    
     if (!banner || !closeBtn) return;
     
-    // Check if banner was dismissed
-    const dismissed = sessionStorage.getItem('promo-dismissed');
-    if (dismissed) {
+    if (sessionStorage.getItem('promo-dismissed')) {
       banner.classList.add('hidden');
     }
     
@@ -84,7 +78,6 @@
   function initMobileMenu() {
     const toggle = document.getElementById('mobileToggle');
     const navLinks = document.getElementById('navLinks');
-    
     if (!toggle || !navLinks) return;
     
     toggle.addEventListener('click', () => {
@@ -93,7 +86,6 @@
       document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
     });
     
-    // Close on nav link click
     navLinks.addEventListener('click', (e) => {
       if (e.target.classList.contains('nav-link')) {
         isMobileMenuOpen = false;
@@ -102,7 +94,6 @@
       }
     });
     
-    // Close on outside click
     document.addEventListener('click', (e) => {
       if (isMobileMenuOpen && !navLinks.contains(e.target) && !toggle.contains(e.target)) {
         isMobileMenuOpen = false;
@@ -121,7 +112,7 @@
     
     window.addEventListener('scroll', () => {
       header.classList.toggle('scrolled', window.scrollY > 20);
-    });
+    }, { passive: true });
   }
 
   // ============================================
@@ -133,7 +124,6 @@
   function initSwiper() {
     if (typeof Swiper === 'undefined') return;
     
-    // Services Swiper
     servicesSwiper = new Swiper('#servicesSwiper', {
       slidesPerView: 1,
       spaceBetween: 20,
@@ -148,7 +138,6 @@
       }
     });
     
-    // Partners Swiper
     partnersSwiper = new Swiper('#partnersSwiper', {
       slidesPerView: 2,
       spaceBetween: 20,
@@ -172,21 +161,17 @@
       button.addEventListener('click', function() {
         filterButtons.forEach(btn => btn.classList.remove('active'));
         this.classList.add('active');
-        
-        const category = this.getAttribute('data-category');
-        filterSwiperSlides(category);
+        filterSwiperSlides(this.getAttribute('data-category'));
       });
     });
   }
   
   function filterSwiperSlides(category) {
     const slides = document.querySelectorAll('#servicesSwiper .swiper-slide');
-    
     slides.forEach(slide => {
       const slideCategory = slide.getAttribute('data-category');
       slide.style.display = (category === 'all' || slideCategory === category || slideCategory === 'all') ? '' : 'none';
     });
-    
     if (servicesSwiper) {
       servicesSwiper.update();
       servicesSwiper.slideTo(0);
@@ -198,7 +183,6 @@
   // ============================================
   function initProjectModals() {
     const projectCards = document.querySelectorAll('.project-card[data-project]');
-    const modals = document.querySelectorAll('.project-modal');
     
     projectCards.forEach(card => {
       card.addEventListener('click', function() {
@@ -208,21 +192,16 @@
       });
     });
     
-    modals.forEach(modal => {
-      const closeBtn = modal.querySelector('.modal-close');
-      const overlay = modal.querySelector('.modal-overlay');
-      
-      closeBtn?.addEventListener('click', () => closeModal(modal));
-      overlay?.addEventListener('click', () => closeModal(modal));
+    document.querySelectorAll('.project-modal').forEach(modal => {
+      modal.querySelector('.modal-close')?.addEventListener('click', () => closeModal(modal));
+      modal.querySelector('.modal-overlay')?.addEventListener('click', () => closeModal(modal));
     });
     
-    // Thumbnail switching
     document.querySelectorAll('.modal-thumb').forEach(thumb => {
       thumb.addEventListener('click', function() {
         const mainImgSrc = this.getAttribute('data-main-img');
         const modalId = this.closest('.project-modal').id;
         const mainImg = document.getElementById(`modal-main-img-${modalId.replace('modal-', '')}`);
-        
         if (mainImg && mainImgSrc) {
           mainImg.src = mainImgSrc;
           this.parentElement.querySelectorAll('.modal-thumb').forEach(t => t.classList.remove('active'));
@@ -231,7 +210,6 @@
       });
     });
     
-    // Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const activeModal = document.querySelector('.project-modal.active');
@@ -271,12 +249,9 @@
     
     function showImage(index) {
       const item = images[index];
-      const src = item.getAttribute('data-src');
-      const caption = item.getAttribute('data-caption');
-      
-      lightboxImage.src = src;
-      lightboxImage.alt = caption;
-      lightboxCaption.textContent = caption;
+      lightboxImage.src = item.getAttribute('data-src');
+      lightboxImage.alt = item.getAttribute('data-caption');
+      lightboxCaption.textContent = item.getAttribute('data-caption');
       lightboxCounter.textContent = `${index + 1} / ${images.length}`;
       currentIndex = index;
     }
@@ -311,20 +286,11 @@
       showImage(currentIndex);
     });
     
-    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
       if (!lightbox.classList.contains('active')) return;
-      
-      if (e.key === 'ArrowLeft') {
-        currentIndex = (currentIndex - 1 + images.length) % images.length;
-        showImage(currentIndex);
-      } else if (e.key === 'ArrowRight') {
-        currentIndex = (currentIndex + 1) % images.length;
-        showImage(currentIndex);
-      } else if (e.key === 'Escape') {
-        lightbox.classList.remove('active');
-        document.body.classList.remove('lightbox-open');
-      }
+      if (e.key === 'ArrowLeft') { currentIndex = (currentIndex - 1 + images.length) % images.length; showImage(currentIndex); }
+      else if (e.key === 'ArrowRight') { currentIndex = (currentIndex + 1) % images.length; showImage(currentIndex); }
+      else if (e.key === 'Escape') { lightbox.classList.remove('active'); document.body.classList.remove('lightbox-open'); }
     });
   }
 
@@ -337,7 +303,6 @@
     const priceMin = document.getElementById('priceMin');
     const priceMax = document.getElementById('priceMax');
     const whatsappBtn = document.getElementById('calcWhatsApp');
-    
     if (!form || !resultDiv) return;
     
     const pricingData = {
@@ -350,36 +315,25 @@
     };
     
     const qualityMultiplier = { standard: 1, premium: 1.5, luxury: 2.5 };
+    const serviceNames = { construction: 'New Construction', renovation: 'Renovation', paving: 'Paving', electrical: 'Electrical Work', plumbing: 'Plumbing', roofing: 'Roof Maintenance' };
+    const sizeNames = { small: 'Small', medium: 'Medium', large: 'Large' };
+    const qualityNames = { standard: 'Standard', premium: 'Premium', luxury: 'Luxury' };
     
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      
       const service = document.getElementById('calcService').value;
       const size = document.getElementById('calcSize').value;
       const quality = document.getElementById('calcQuality').value;
       
-      if (!service || !size || !quality) {
-        alert('Please select all options to get an estimate.');
-        return;
-      }
+      if (!service || !size || !quality) { alert('Please select all options.'); return; }
       
       const basePrice = pricingData[service]?.[size] || [0, 0];
       const multiplier = qualityMultiplier[quality] || 1;
-      
       const min = Math.round(basePrice[0] * multiplier);
       const max = Math.round(basePrice[1] * multiplier);
       
       priceMin.textContent = `R${min.toLocaleString()}`;
       priceMax.textContent = `R${max.toLocaleString()}`;
-      
-      const serviceNames = {
-        construction: 'New Construction', renovation: 'Renovation',
-        paving: 'Paving', electrical: 'Electrical Work',
-        plumbing: 'Plumbing', roofing: 'Roof Maintenance'
-      };
-      
-      const sizeNames = { small: 'Small', medium: 'Medium', large: 'Large' };
-      const qualityNames = { standard: 'Standard', premium: 'Premium', luxury: 'Luxury' };
       
       whatsappBtn.href = `https://wa.me/27672280060?text=${encodeURIComponent(
         `Hi Nathi Projects, I'd like an exact quote for:\n` +
@@ -398,21 +352,11 @@
   // FAQ ACCORDION
   // ============================================
   function initFAQ() {
-    const faqItems = document.querySelectorAll('.faq-item');
-    
-    faqItems.forEach(item => {
-      const question = item.querySelector('.faq-question');
-      
-      question?.addEventListener('click', () => {
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.querySelector('.faq-question')?.addEventListener('click', () => {
         const isActive = item.classList.contains('active');
-        
-        // Close all
-        faqItems.forEach(i => i.classList.remove('active'));
-        
-        // Open clicked (unless it was already open)
-        if (!isActive) {
-          item.classList.add('active');
-        }
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+        if (!isActive) item.classList.add('active');
       });
     });
   }
@@ -424,31 +368,26 @@
     const form = document.getElementById('callbackForm');
     if (!form) return;
     
+    const timeNames = { morning: 'Morning (8am-12pm)', afternoon: 'Afternoon (12pm-4pm)', evening: 'Evening (4pm-6pm)' };
+    
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      
       const name = document.getElementById('cbName').value.trim();
       const phone = document.getElementById('cbPhone').value.trim();
       const time = document.getElementById('cbTime').value;
       const service = document.getElementById('cbService').value;
       
-      if (!name || !phone) {
-        alert('Please fill in your name and phone number.');
-        return;
-      }
+      if (!name || !phone) { alert('Please fill in your name and phone number.'); return; }
       
-      const timeNames = { morning: 'Morning (8am-12pm)', afternoon: 'Afternoon (12pm-4pm)', evening: 'Evening (4pm-6pm)' };
-      
-      const message = `Hi Nathi Projects, please call me back.\n` +
-        `• Name: ${name}\n` +
-        `• Phone: ${phone}\n` +
+      window.open(`https://wa.me/27672280060?text=${encodeURIComponent(
+        `Hi Nathi Projects, please call me back.\n` +
+        `• Name: ${name}\n• Phone: ${phone}\n` +
         `• Preferred Time: ${timeNames[time] || 'Any time'}\n` +
-        `• Service: ${service || 'Not specified'}`;
+        `• Service: ${service || 'Not specified'}`
+      )}`, '_blank', 'noopener,noreferrer');
       
-      window.open(`https://wa.me/27672280060?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
       form.reset();
-      
-      alert('Callback request sent! We\'ll contact you soon via WhatsApp.');
+      alert('Callback request sent! We\'ll contact you soon.');
     });
   }
 
@@ -458,27 +397,19 @@
   function initWhatsAppWidget() {
     const widget = document.getElementById('whatsappWidget');
     const toggle = document.getElementById('waWidgetToggle');
-    const quickBtns = document.querySelectorAll('.wa-quick-btn');
-    
     if (!widget || !toggle) return;
     
-    toggle.addEventListener('click', () => {
-      widget.classList.toggle('open');
-    });
+    toggle.addEventListener('click', () => widget.classList.toggle('open'));
     
-    quickBtns.forEach(btn => {
+    document.querySelectorAll('.wa-quick-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const message = btn.getAttribute('data-message');
-        window.open(`https://wa.me/27672280060?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+        window.open(`https://wa.me/27672280060?text=${encodeURIComponent(btn.getAttribute('data-message'))}`, '_blank', 'noopener,noreferrer');
         widget.classList.remove('open');
       });
     });
     
-    // Close on outside click
     document.addEventListener('click', (e) => {
-      if (widget.classList.contains('open') && 
-          !widget.contains(e.target) && 
-          !toggle.contains(e.target)) {
+      if (widget.classList.contains('open') && !widget.contains(e.target) && !toggle.contains(e.target)) {
         widget.classList.remove('open');
       }
     });
@@ -493,11 +424,9 @@
     
     window.addEventListener('scroll', () => {
       btn.classList.toggle('visible', window.scrollY > 500);
-    });
+    }, { passive: true });
     
-    btn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   }
 
   // ============================================
@@ -511,9 +440,7 @@
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const el = entry.target;
-          const target = parseInt(el.getAttribute('data-count'), 10);
-          const duration = parseInt(el.getAttribute('data-duration'), 10) || 2000;
-          animateCounter(el, target, duration);
+          animateCounter(el, parseInt(el.getAttribute('data-count'), 10), parseInt(el.getAttribute('data-duration'), 10) || 2000);
           observer.unobserve(el);
         }
       });
@@ -524,22 +451,12 @@
   
   function animateCounter(element, target, duration) {
     const startTime = performance.now();
-    
     function updateCounter(currentTime) {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const currentValue = Math.floor(target * eased);
-      
-      element.textContent = currentValue;
-      
-      if (progress < 1) {
-        requestAnimationFrame(updateCounter);
-      } else {
-        element.textContent = target;
-      }
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      element.textContent = Math.floor(target * (1 - Math.pow(1 - progress, 3)));
+      if (progress < 1) requestAnimationFrame(updateCounter);
+      else element.textContent = target;
     }
-    
     requestAnimationFrame(updateCounter);
   }
 
@@ -567,20 +484,23 @@
   }
 
   // ============================================
-  // SMOOTH SCROLL FOR ANCHOR LINKS
+  // SMOOTH SCROLL
   // ============================================
   function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(link => {
       link.addEventListener('click', function(e) {
         const href = this.getAttribute('href');
         if (href === '#') return;
-        
         const target = document.querySelector(href);
         if (target) {
           e.preventDefault();
+          if (isMobileMenuOpen) {
+            isMobileMenuOpen = false;
+            document.getElementById('navLinks')?.classList.remove('active');
+            document.body.style.overflow = '';
+          }
           const headerHeight = document.getElementById('siteHeader')?.offsetHeight || 80;
-          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20;
-          window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+          window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20, behavior: 'smooth' });
         }
       });
     });
@@ -595,7 +515,6 @@
     
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      
       const name = document.getElementById('waName')?.value.trim();
       const service = document.getElementById('waService')?.value;
       const message = document.getElementById('waMessage')?.value.trim();
@@ -622,17 +541,10 @@
       const footer = document.querySelector('.footer');
       if (footer) {
         const footerTop = footer.getBoundingClientRect().top;
-        const windowHeight = window.innerHeight;
-        
-        if (footerTop < windowHeight + 100) {
-          floatingWA.style.opacity = '0';
-          floatingWA.style.pointerEvents = 'none';
-        } else {
-          floatingWA.style.opacity = '1';
-          floatingWA.style.pointerEvents = 'auto';
-        }
+        floatingWA.style.opacity = footerTop < window.innerHeight + 100 ? '0' : '1';
+        floatingWA.style.pointerEvents = footerTop < window.innerHeight + 100 ? 'none' : 'auto';
       }
-    });
+    }, { passive: true });
   }
 
   // ============================================
